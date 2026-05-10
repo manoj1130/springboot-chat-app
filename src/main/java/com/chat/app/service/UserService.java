@@ -28,4 +28,15 @@ public class UserService {
 		}
 		return false;
 	}
+	
+	
+	public boolean removeUser(String name) {
+		for(User user : users) {
+			if(user.getName().equals(name)) {
+				users.remove(user);
+				return true;
+			}
+		}
+		return false;
+	}
 }
