@@ -3,6 +3,7 @@ package com.chat.app.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.chat.app.model.Message;
@@ -16,8 +17,13 @@ public class MessageController {
     private MessageService service;
 
     @PostMapping("/send")
-    public Message sendMessage(@RequestBody Message message) {
-        return service.saveMessage(message);
+    public ResponseEntity<?> sendMessage(@RequestBody Message message) {
+    	
+        Message saved = service.saveMessage(message);
+        if(saved == null) {
+        	return ResponseEntity.badRequest().body("User not found. Join first");
+        }
+        return ResponseEntity.ok(saved);
     }
 
     @GetMapping("/all")
