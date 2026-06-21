@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.chat.app.model.Message;
+import com.chat.app.repository.MessageRepository;
 
 @Service
 public class MessageService {
@@ -14,18 +15,20 @@ public class MessageService {
 	@Autowired
 	private UserService userService;
 
+	@Autowired
+	private MessageRepository messageRepository;
+	
     private List<Message> messages = new ArrayList<>();
 
     public Message saveMessage(Message message) {
     	if(userService.userExists(message.getSender())) {
-    		messages.add(message);
-            return message;
+            return messageRepository.save(message);
     	}
         return null;
     }
 
     public List<Message> getAllMessages() {
-        return messages;
+        return messageRepository.findAll();
     }
     
     

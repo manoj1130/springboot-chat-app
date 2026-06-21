@@ -1,42 +1,40 @@
 package com.chat.app.service;
-
+import com.chat.app.exception.UserNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.chat.app.exception.UserNotFoundException;
 import com.chat.app.model.User;
+import com.chat.app.repository.UserRepository;
 
 @Service
 public class UserService {
-	private List<User> users = new ArrayList<>();
+	@Autowired
+	private UserRepository userRepository;
 	
-	public User AddUser(User user) {
-		users.add(user);
-		return user;
+	public User addUser(User user) {
+		return userRepository.save(user);
 	}
 	
 	public List<User> getAllUsers(){
-		return users;
+		return userRepository.findAll();
 	}
 
 	public boolean userExists(String name) {
-		for(User user : users) {
-			if(user.getName().equals(name)) {
-				return true;
-			}
-		}
-		return false;
+		return userRepository.existsByName(name);
 	}
 	
 	
 	public boolean removeUser(String name) {
-		for(User user : users) {
-			if(user.getName().equals(name)) {
-				users.remove(user);
-				return true;
-			}
+		
+		if(!userRepository.existsByName(name)) {
+			throw new UserNotFoundException("User '"+name+ "' not found.");
 		}
-		return false;
+		userRepository.deleteByName(name);
+		return true;
+		
 	}
 }
