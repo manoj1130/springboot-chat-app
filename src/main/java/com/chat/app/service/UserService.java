@@ -31,8 +31,29 @@ public class UserService {
 				savedUser.getRole());
 	}
 	
-	public List<User> getAllUsers(){
-		return userRepository.findAll();
+	public UserResponse getCurrentUser(String username) {
+
+	    User user = userRepository.findByUsername(username)
+	            .orElseThrow(() ->
+	                    new UserNotFoundException("User not found"));
+
+	    return new UserResponse(
+	            user.getId(),
+	            user.getUsername(),
+	            user.getRole()
+	    );
+	}
+	
+	public List<UserResponse> getAllUsers() {
+
+	    List<User> users = userRepository.findAll();
+
+	    return users.stream()
+	            .map(user -> new UserResponse(
+	                    user.getId(),
+	                    user.getUsername(),
+	                    user.getRole()))
+	            .toList();
 	}
 
 	public boolean userExists(String name) {

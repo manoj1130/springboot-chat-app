@@ -1,23 +1,29 @@
 package com.chat.app.dto;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.chat.app.security.JwtService;
+
 public class LoginResponse {
-	private String message;
+	
+	
+	private String token;
 
 	public LoginResponse() {
+		
+	}
+
+	public LoginResponse(String token) {
 		super();
+		this.token = token;
 	}
 
-	public LoginResponse(String message) {
-		super();
-		this.message = message;
+	public String getToken() {
+		return token;
 	}
 
-	public String getMessage() {
-		return message;
-	}
-
-	public void setMessage(String message) {
-		this.message = message;
+	public void setToken(String token) {
+		this.token = token;
 	}
 	
 }

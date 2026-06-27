@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.chat.app.dto.LoginRequest;
 import com.chat.app.dto.LoginResponse;
+import com.chat.app.security.JwtService;
 
 import jakarta.validation.Valid;
 
@@ -21,6 +22,9 @@ public class AuthController {
 	@Autowired
 	private AuthenticationManager authenticationManager;
 	
+	@Autowired
+	private JwtService jwtService;
+	
 	@PostMapping("/login")
 	public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request){
 		authenticationManager.authenticate(
@@ -29,6 +33,9 @@ public class AuthController {
 						request.getPassword()
 						)
 				);
-		return ResponseEntity.ok(new LoginResponse("Login Successful"));
+		
+		String token = jwtService.generateToken(request.getUsername());
+		
+		return ResponseEntity.ok(new LoginResponse(token));
 	}
 }
