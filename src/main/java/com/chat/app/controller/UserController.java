@@ -14,8 +14,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.chat.app.dto.UserRequest;
+import com.chat.app.dto.UserResponse;
 import com.chat.app.model.User;
 import com.chat.app.service.UserService;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/user")
@@ -24,9 +28,9 @@ public class UserController {
 	private UserService userService;
 	
 	@PostMapping("/join")
-	public ResponseEntity<User> joinUser(@RequestBody User user) {
-		User users = userService.addUser(user);
-		return ResponseEntity.status(HttpStatus.CREATED).body(users);
+	public ResponseEntity<UserResponse> joinUser(@Valid @RequestBody UserRequest request) {
+		UserResponse response = userService.addUser(request);
+		return ResponseEntity.status(HttpStatus.CREATED).body(response);
 	}
 	
 	

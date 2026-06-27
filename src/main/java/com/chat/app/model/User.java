@@ -1,38 +1,85 @@
 package com.chat.app.model;
 
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
 
 @Entity
 @Table(name = "users")
 public class User {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long id;
-	private String name;
-	
-	User(){
-		
+	private Long id;
+	@NotBlank(message = "Username is required")
+	private String username;
+
+	@NotBlank(message = "Password is required")
+	private String password;
+
+	@NotBlank(message = "Role is required")
+	private String role;
+	@JsonIgnore // "Ignore the messages field when converting User to JSON."
+	@OneToMany(mappedBy = "user") // The user field inside Message owns this relationship.
+	private List<Message> messages;
+
+	public User() {
+
 	}
-	User(long id, String name){
+
+	public User(Long id, String username, String password, String role) {
+
 		this.id = id;
-		this.name = name;
+		this.username = username;
+		this.password = password;
+		this.role = role;
 	}
+
 	public long getId() {
 		return id;
 	}
-	public void setId(long id) {
+
+	public void setId(Long id) {
 		this.id = id;
 	}
-	public String getName() {
-		return name;
+
+	public String getUsername() {
+		return username;
 	}
-	public void setName(String name) {
-		this.name = name;
+
+	public void setUsername(String username) {
+		this.username = username;
 	}
-	
-	
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public String getRole() {
+		return role;
+	}
+
+	public void setRole(String role) {
+		this.role = role;
+	}
+
+	public List<Message> getMessages() {
+		return messages;
+	}
+
+	public void setMessages(List<Message> messages) {
+		this.messages = messages;
+	}
+
 }

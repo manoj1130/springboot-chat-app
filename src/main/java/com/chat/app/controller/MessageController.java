@@ -6,8 +6,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.chat.app.dto.MessageRequest;
 import com.chat.app.model.Message;
 import com.chat.app.service.MessageService;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/chat")
@@ -17,9 +20,9 @@ public class MessageController {
     private MessageService service;
 
     @PostMapping("/send")
-    public ResponseEntity<?> sendMessage(@RequestBody Message message) {
+    public ResponseEntity<?> sendMessage(@Valid @RequestBody MessageRequest request) {
     	
-        Message saved = service.saveMessage(message);
+        Message saved = service.saveMessage(request);
         if(saved == null) {
         	return ResponseEntity.badRequest().body("User not found. Join first");
         }

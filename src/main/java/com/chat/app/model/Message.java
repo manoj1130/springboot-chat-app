@@ -4,6 +4,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -12,13 +14,15 @@ public class Message {
 		@Id
 		@GeneratedValue(strategy = GenerationType.IDENTITY)
 		private Long id;
-	    private String sender;
+		@ManyToOne
+		@JoinColumn(name = "user_id")
+	    private User user;
 	    private String content;
 	    private String timestamp;
-		public Message(Long id, String sender, String content, String timestamp) {
+		public Message(Long id, User user, String content, String timestamp) {
 			super();
 			this.id = id;
-			this.sender = sender;
+			this.user = user;
 			this.content = content;
 			this.timestamp = timestamp;
 		}
@@ -32,11 +36,11 @@ public class Message {
 		public void setId(Long id) {
 			this.id = id;
 		}
-		public String getSender() {
-			return sender;
+		public User getUser() {
+			return user;
 		}
-		public void setSender(String sender) {
-			this.sender = sender;
+		public void setUser(User user) {
+			this.user = user;
 		}
 		public String getContent() {
 			return content;

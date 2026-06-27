@@ -9,7 +9,7 @@ import com.chat.app.model.User;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long>{
-	boolean existsByName(String name);
-	void deleteByName(String name);
-	Optional<User> findByName(String name);
+	boolean existsByUsername(String username);
+	void deleteByUsername(String username);
+	Optional<User> findByUsername(String username);
 }
