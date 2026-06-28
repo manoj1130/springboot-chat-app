@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.chat.app.dto.ChatHistoryResponse;
 import com.chat.app.dto.MessageRequest;
 import com.chat.app.model.Message;
 import com.chat.app.service.MessageService;
@@ -13,16 +14,16 @@ import com.chat.app.service.MessageService;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/chat")
+@RequestMapping("/messages")
 public class MessageController {
 
     @Autowired
-    private MessageService service;
+    private MessageService messageService;
 
     @PostMapping("/send")
     public ResponseEntity<?> sendMessage(@Valid @RequestBody MessageRequest request) {
     	
-        Message saved = service.saveMessage(request);
+        Message saved = messageService.saveMessage(request);
         if(saved == null) {
         	return ResponseEntity.badRequest().body("User not found. Join first");
         }
@@ -33,9 +34,14 @@ public class MessageController {
     @GetMapping("/all")
     public ResponseEntity<List<Message>> getMessages() {
 
-        List<Message> messages = service.getAllMessages();
+        List<Message> messages = messageService.getAllMessages();
 
         return ResponseEntity.ok(messages);
+    }
+    
+    @GetMapping("/history")
+    public List<ChatHistoryResponse> getChatHistory(){
+    	return messageService.getChatHistory();
     }
     
     

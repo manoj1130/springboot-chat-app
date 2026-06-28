@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat App</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+</head>
+
+<body>
+
+<h2>Spring Boot Chat</h2>
+
+
+
+<input id="message" placeholder="Message">
+
+<button onclick="sendMessage()">Send</button>
+
+<hr>
+
+<div id="chat"></div>
+
+<script>
+
+let stompClient = null;
+
+function connect(){
+
+    let socket = new SockJS('/chat');
+
+    stompClient = Stomp.over(socket);
+
+    let token = localStorage.getItem("token");
+
+    stompClient.connect(
+        {
+            Authorization: "Bearer " + token
+        },
+        function(){
+
+            console.log("Connected");
+
+            stompClient.subscribe('/topic/messages',function(message){
+
+                let msg = JSON.parse(message.body);
+
+                document.getElementById("chat").innerHTML +=
+                    "<p><b>"+msg.sender+"</b>: "+msg.content+"</p>";
+
+            });
+
+        }
+    );
+
+}
+function sendMessage(){
+
+    let content = document.getElementById("message").value;
+
+    stompClient.send("/app/send",{},JSON.stringify({
+
+        content:content
+
+    }));
+
+}
+
+connect();
+
+</script>
+
+</body>
+</html>

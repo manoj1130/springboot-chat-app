@@ -1,10 +1,12 @@
 package com.chat.app.service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.chat.app.dto.ChatHistoryResponse;
 import com.chat.app.dto.MessageRequest;
 import com.chat.app.exception.UserNotFoundException;
 import com.chat.app.model.Message;
@@ -25,7 +27,7 @@ public class MessageService {
 	private UserRepository userRepository;
 	
     
-
+	// Used by REST API
     public Message saveMessage(MessageRequest request) {
     	
     	User user = userRepository.findById(request.getUserId())
@@ -41,8 +43,29 @@ public class MessageService {
     	return messageRepository.save(message);
     }
 
+    //Using by WebSocket
+    public Message saveMessage(User user, String content) {
+
+        Message message = new Message();
+
+        message.setUser(user);
+        message.setContent(content);
+        message.setTimestamp(java.time.LocalDateTime.now().toString());
+
+        return messageRepository.save(message);
+    }
     public List<Message> getAllMessages() {
         return messageRepository.findAll();
+    }
+    
+    public List<ChatHistoryResponse> getChatHistory(){
+    	return messageRepository.findAll()
+    			.stream()
+    			.map(message->new ChatHistoryResponse(
+    					message.getUser().getUsername(),
+    					message.getContent(),
+    					message.getTimestamp()))
+    			.collect(Collectors.toList());
     }
     
     

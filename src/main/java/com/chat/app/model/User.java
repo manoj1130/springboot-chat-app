@@ -81,5 +81,19 @@ public class User {
 	public void setMessages(List<Message> messages) {
 		this.messages = messages;
 	}
+	
+	
+	
+	/* ✅ Public Chat (Completed)
+	🔜 Private Chat (1-to-1)
+	🔜 Online / Offline Status
+	🔜 Typing Indicator
+	🔜 Read Receipts
+	🔜 Group Chat
+	🔜 File & Image Sharing
+	🔜 Notifications
+	🔜 Deploy Backend
+	🔜 React Frontend
+	🔜 Deploy Full Stack */
 
 }
