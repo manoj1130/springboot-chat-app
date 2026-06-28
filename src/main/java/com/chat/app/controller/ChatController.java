@@ -4,12 +4,10 @@ import java.security.Principal;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
 import com.chat.app.dto.ChatMessage;
-import com.chat.app.model.User;
 import com.chat.app.repository.UserRepository;
 import com.chat.app.service.MessageService;
 
@@ -32,11 +30,20 @@ public class ChatController {
 		String sender = principal.getName();
 		
 		message.setSender(sender);
+		
+		// Save into database
+	    messageService.savePrivateMessage(
+	            sender,
+	            message.getReceiver(),
+	            message.getContent()
+	    );
+	    
+	    
 		messagingTemplate.convertAndSendToUser(
 				message.getReceiver(),
 				"/queue/messages",
 				message
 				);
-		 System.out.println("Message Sent");
+		 
 	}
 }

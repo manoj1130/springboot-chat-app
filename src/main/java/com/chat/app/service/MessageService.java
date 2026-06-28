@@ -55,6 +55,24 @@ public class MessageService {
 
 	    return messageRepository.save(message);
 	}
+	
+	public Message savePrivateMessage(String senderUsername, String receiverUsername,String content) {
+		User sender = userRepository.findByUsername(senderUsername)
+						.orElseThrow(() ->
+						new UserNotFoundException("Sender not found"));
+		
+		User receiver = userRepository.findByUsername(receiverUsername)
+						.orElseThrow(()-> new UserNotFoundException("Receiver not found"));
+		
+		Message message = new Message();
+		message.setSender(sender);
+		message.setReceiver(receiver);
+		message.setContent(content);
+		message.setTimestamp(java.time.LocalDateTime.now().toString());
+		
+		return messageRepository.save(message);
+					
+	}
     public List<Message> getAllMessages() {
         return messageRepository.findAll();
     }
