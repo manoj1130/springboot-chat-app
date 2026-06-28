@@ -11,6 +11,10 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
+import com.chat.app.model.User;
+import com.chat.app.repository.UserRepository;
+import com.chat.app.service.UserService;
+
 
 
 @Component
@@ -23,12 +27,20 @@ public class WebSocketAuthChannelInterceptor implements ChannelInterceptor{
 	@Autowired
 	private CustomUserDetailsService customUserDetailsService;
 	
+	@Autowired
+	private UserRepository userRepository;
+	
+	@Autowired
+	private UserService userService;
+	
 	@Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
 
+		
 		StompHeaderAccessor accessor = 
 				MessageHeaderAccessor.getAccessor(message,StompHeaderAccessor.class);
 		
+
 		
 		if (accessor != null && StompCommand.CONNECT.equals(accessor.getCommand())) {
 
@@ -36,23 +48,23 @@ public class WebSocketAuthChannelInterceptor implements ChannelInterceptor{
 
 		    if (authHeader != null && authHeader.startsWith("Bearer ")) {
 
-		    	String token = authHeader.substring(7);
+		        String token = authHeader.substring(7);
 
-		    	String username = jwtService.extractUsername(token);
+		        String username = jwtService.extractUsername(token);
 
-		    	UserDetails userDetails =
-		    	        customUserDetailsService.loadUserByUsername(username);
+		        UserDetails userDetails =
+		                customUserDetailsService.loadUserByUsername(username);
 
-		    	UsernamePasswordAuthenticationToken authentication =
-		    	        new UsernamePasswordAuthenticationToken(
-		    	                userDetails,
-		    	                null,
-		    	                userDetails.getAuthorities()
-		    	        );
+		        UsernamePasswordAuthenticationToken authentication =
+		                new UsernamePasswordAuthenticationToken(
+		                        userDetails,
+		                        null,
+		                        userDetails.getAuthorities()
+		                );
 
-		    	accessor.setUser(authentication);
+		        accessor.setUser(authentication);
 
-		    	
+		        userService.updateOnlineStatus(username, true);
 		    }
 		}
         return message;

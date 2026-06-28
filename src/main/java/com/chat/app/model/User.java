@@ -29,20 +29,26 @@ public class User {
 	@JsonIgnore // "Ignore the messages field when converting User to JSON."
 	@OneToMany(mappedBy = "sender") // The user field inside Message owns this relationship.
 	private List<Message> sentMessages;
+	
+	private boolean online;
 
 	public User() {
 
 	}
 
-	public User(Long id, String username, String password, String role) {
-
+	public User(Long id, @NotBlank(message = "Username is required") String username,
+			@NotBlank(message = "Password is required") String password,
+			@NotBlank(message = "Role is required") String role, List<Message> sentMessages, boolean online) {
+		super();
 		this.id = id;
 		this.username = username;
 		this.password = password;
 		this.role = role;
+		this.sentMessages = sentMessages;
+		this.online = online;
 	}
 
-	public long getId() {
+	public Long getId() {
 		return id;
 	}
 
@@ -75,12 +81,22 @@ public class User {
 	}
 
 	public List<Message> getSentMessages() {
-	    return sentMessages;
+		return sentMessages;
 	}
 
 	public void setSentMessages(List<Message> sentMessages) {
-	    this.sentMessages = sentMessages;
+		this.sentMessages = sentMessages;
 	}
+
+	public boolean isOnline() {
+		return online;
+	}
+
+	public void setOnline(boolean online) {
+		this.online = online;
+	}
+
+	
 	
 	
 	

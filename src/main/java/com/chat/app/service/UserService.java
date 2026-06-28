@@ -1,13 +1,14 @@
 package com.chat.app.service;
-import com.chat.app.dto.UserRequest;
-import com.chat.app.dto.UserResponse;
-import com.chat.app.exception.UserNotFoundException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.chat.app.dto.UserRequest;
+import com.chat.app.dto.UserResponse;
+import com.chat.app.exception.UserNotFoundException;
 import com.chat.app.model.User;
 import com.chat.app.repository.UserRepository;
 
@@ -56,6 +57,18 @@ public class UserService {
 	            .toList();
 	}
 
+	
+	@Transactional
+	public void updateOnlineStatus(String username, boolean online) {
+
+	    User user = userRepository.findByUsername(username)
+	            .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+	    user.setOnline(online);
+
+	    userRepository.save(user);
+	}
+	
 	public boolean userExists(String name) {
 		return userRepository.existsByUsername(name);
 	}

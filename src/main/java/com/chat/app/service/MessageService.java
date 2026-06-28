@@ -73,6 +73,27 @@ public class MessageService {
 		return messageRepository.save(message);
 					
 	}
+	
+	public List<ChatHistoryResponse> getConversation(String user1, String user2) {
+
+	    List<Message> messages =
+	            messageRepository
+	            .findBySenderUsernameAndReceiverUsernameOrSenderUsernameAndReceiverUsernameOrderByIdAsc(
+	                    user1,
+	                    user2,
+	                    user2,
+	                    user1
+	            );
+
+	    return messages.stream()
+	            .map(message -> new ChatHistoryResponse(
+	                    message.getSender().getUsername(),
+	                    message.getContent(),
+	                    message.getTimestamp()
+	            ))
+	            .toList();
+	}
+	
     public List<Message> getAllMessages() {
         return messageRepository.findAll();
     }

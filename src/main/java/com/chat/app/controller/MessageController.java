@@ -1,10 +1,16 @@
 package com.chat.app.controller;
 
+import java.security.Principal;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.chat.app.dto.ChatHistoryResponse;
 import com.chat.app.dto.MessageRequest;
@@ -30,6 +36,17 @@ public class MessageController {
         return ResponseEntity.ok(saved);
     }
 
+    @GetMapping("/conversation")
+    public ResponseEntity<List<ChatHistoryResponse>> getConversation(
+            @RequestParam String receiver,
+            Principal principal) {
+
+    	String sender = principal.getName();
+        List<ChatHistoryResponse> conversation =
+                messageService.getConversation(sender, receiver);
+
+        return ResponseEntity.ok(conversation);
+    }
     
     @GetMapping("/all")
     public ResponseEntity<List<Message>> getMessages() {

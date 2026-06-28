@@ -25,7 +25,7 @@
 
 let stompClient = null;
 
-function connect(){
+function connect() {
 
     let socket = new SockJS('/chat');
 
@@ -33,15 +33,21 @@ function connect(){
 
     let token = localStorage.getItem("token");
 
+    
+
+    let headers = {
+        Authorization: "Bearer " + token
+    };
+
+    
+
     stompClient.connect(
-        {
-            Authorization: "Bearer " + token
-        },
-        function(){
+        headers,
+        function () {
 
             
 
-            stompClient.subscribe('/user/queue/messages',function(message){
+            stompClient.subscribe('/user/queue/messages', function(message){
 
                 let msg = JSON.parse(message.body);
 
@@ -52,8 +58,8 @@ function connect(){
 
         }
     );
-
 }
+
 function sendMessage() {
 
     
