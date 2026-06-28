@@ -27,8 +27,8 @@ public class User {
 	@NotBlank(message = "Role is required")
 	private String role;
 	@JsonIgnore // "Ignore the messages field when converting User to JSON."
-	@OneToMany(mappedBy = "user") // The user field inside Message owns this relationship.
-	private List<Message> messages;
+	@OneToMany(mappedBy = "sender") // The user field inside Message owns this relationship.
+	private List<Message> sentMessages;
 
 	public User() {
 
@@ -74,12 +74,12 @@ public class User {
 		this.role = role;
 	}
 
-	public List<Message> getMessages() {
-		return messages;
+	public List<Message> getSentMessages() {
+	    return sentMessages;
 	}
 
-	public void setMessages(List<Message> messages) {
-		this.messages = messages;
+	public void setSentMessages(List<Message> sentMessages) {
+	    this.sentMessages = sentMessages;
 	}
 	
 	

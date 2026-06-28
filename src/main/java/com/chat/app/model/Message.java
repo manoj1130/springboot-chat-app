@@ -15,32 +15,44 @@ public class Message {
 		@GeneratedValue(strategy = GenerationType.IDENTITY)
 		private Long id;
 		@ManyToOne
-		@JoinColumn(name = "user_id")
-	    private User user;
+		@JoinColumn(name = "sender_id")
+		private User sender;
+
+		@ManyToOne
+		@JoinColumn(name = "receiver_id")
+		private User receiver;
 	    private String content;
 	    private String timestamp;
-		public Message(Long id, User user, String content, String timestamp) {
-			super();
-			this.id = id;
-			this.user = user;
-			this.content = content;
-			this.timestamp = timestamp;
-		}
+	    
+	    
 		public Message() {
 			super();
 		}
-		
+		public Message(Long id, User sender, User receiver, String content, String timestamp) {
+			super();
+			this.id = id;
+			this.sender = sender;
+			this.receiver = receiver;
+			this.content = content;
+			this.timestamp = timestamp;
+		}
 		public Long getId() {
 			return id;
 		}
 		public void setId(Long id) {
 			this.id = id;
 		}
-		public User getUser() {
-			return user;
+		public User getSender() {
+			return sender;
 		}
-		public void setUser(User user) {
-			this.user = user;
+		public void setSender(User sender) {
+			this.sender = sender;
+		}
+		public User getReceiver() {
+			return receiver;
+		}
+		public void setReceiver(User receiver) {
+			this.receiver = receiver;
 		}
 		public String getContent() {
 			return content;
@@ -54,5 +66,6 @@ public class Message {
 		public void setTimestamp(String timestamp) {
 			this.timestamp = timestamp;
 		}
+		
 	    
 }

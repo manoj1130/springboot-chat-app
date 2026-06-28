@@ -5,6 +5,7 @@ import java.security.Principal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
 import com.chat.app.dto.ChatMessage;
@@ -20,15 +21,22 @@ public class ChatController {
 
 	@Autowired
 	private UserRepository userRepository;
+	
+	@Autowired
+	private SimpMessagingTemplate messagingTemplate;
 
 	@MessageMapping("/send")
-	@SendTo("/topic/messages")
-	public ChatMessage sendMessage(ChatMessage message, Principal principal) {
-		String username = principal.getName();
-		User user = userRepository.findByUsername(username)
-					.orElseThrow(()-> new RuntimeException("User not found"));
-		messageService.saveMessage(user,message.getContent());
-		message.setSender(username);
-		return message;
+	
+	public void sendMessage(ChatMessage message, Principal principal) {
+		 
+		String sender = principal.getName();
+		
+		message.setSender(sender);
+		messagingTemplate.convertAndSendToUser(
+				message.getReceiver(),
+				"/queue/messages",
+				message
+				);
+		 System.out.println("Message Sent");
 	}
 }

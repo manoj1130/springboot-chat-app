@@ -12,7 +12,7 @@
 <h2>Spring Boot Chat</h2>
 
 
-
+<input id="receiver" placeholder="Receiver Username">
 <input id="message" placeholder="Message">
 
 <button onclick="sendMessage()">Send</button>
@@ -39,9 +39,9 @@ function connect(){
         },
         function(){
 
-            console.log("Connected");
+            
 
-            stompClient.subscribe('/topic/messages',function(message){
+            stompClient.subscribe('/user/queue/messages',function(message){
 
                 let msg = JSON.parse(message.body);
 
@@ -54,16 +54,21 @@ function connect(){
     );
 
 }
-function sendMessage(){
+function sendMessage() {
 
+    
+
+    let receiver = document.getElementById("receiver").value;
     let content = document.getElementById("message").value;
 
-    stompClient.send("/app/send",{},JSON.stringify({
+    
 
-        content:content
-
+    stompClient.send("/app/send", {}, JSON.stringify({
+        receiver: receiver,
+        content: content
     }));
 
+   
 }
 
 connect();

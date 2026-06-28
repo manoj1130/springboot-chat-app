@@ -28,6 +28,8 @@ public class WebSocketAuthChannelInterceptor implements ChannelInterceptor{
 
 		StompHeaderAccessor accessor = 
 				MessageHeaderAccessor.getAccessor(message,StompHeaderAccessor.class);
+		
+		
 		if (accessor != null && StompCommand.CONNECT.equals(accessor.getCommand())) {
 
 		    String authHeader = accessor.getFirstNativeHeader("Authorization");
@@ -50,7 +52,7 @@ public class WebSocketAuthChannelInterceptor implements ChannelInterceptor{
 
 		    	accessor.setUser(authentication);
 
-		    	System.out.println("Authenticated User : " + authentication.getName());
+		    	
 		    }
 		}
         return message;
