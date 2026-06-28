@@ -17,6 +17,8 @@
 
 <button onclick="sendMessage()">Send</button>
 
+<div id="typing" style="color:gray; font-style:italic;"></div>
+
 <hr>
 
 <div id="chat"></div>
@@ -55,11 +57,42 @@ function connect() {
                     "<p><b>"+msg.sender+"</b>: "+msg.content+"</p>";
 
             });
+            
+            stompClient.subscribe('/user/queue/typing', function(message){
+
+                let typing = JSON.parse(message.body);
+
+                let typingDiv = document.getElementById("typing");
+
+                if(typing.typing){
+
+                    typingDiv.innerHTML =
+                        "<i>" + typing.sender + " is typing...</i>";
+
+                }else{
+
+                    typingDiv.innerHTML = "";
+
+                }
+
+            });
 
         }
     );
 }
+function sendTyping(isTyping){
 
+    let receiver = document.getElementById("receiver").value;
+
+    stompClient.send("/app/typing",{},JSON.stringify({
+
+        receiver:receiver,
+
+        typing:isTyping
+
+    }));
+
+}
 function sendMessage() {
 
     
@@ -78,6 +111,22 @@ function sendMessage() {
 }
 
 connect();
+
+let timer;
+
+document.getElementById("message").addEventListener("input",function(){
+
+    sendTyping(true);
+
+    clearTimeout(timer);
+
+    timer = setTimeout(function(){
+
+        sendTyping(false);
+
+    },1000);
+
+});
 
 </script>
 

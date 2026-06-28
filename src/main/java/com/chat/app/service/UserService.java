@@ -69,6 +69,19 @@ public class UserService {
 	    userRepository.save(user);
 	}
 	
+	@Transactional
+	public void updateOfflineStatus(String username) {
+
+	    User user = userRepository.findByUsername(username)
+	            .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+	    user.setOnline(false);
+
+	    user.setLastSeen(java.time.LocalDateTime.now().toString());
+
+	    userRepository.save(user);
+	}
+	
 	public boolean userExists(String name) {
 		return userRepository.existsByUsername(name);
 	}

@@ -8,6 +8,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
 import com.chat.app.dto.ChatMessage;
+import com.chat.app.dto.TypingMessage;
 import com.chat.app.repository.UserRepository;
 import com.chat.app.service.MessageService;
 
@@ -38,12 +39,21 @@ public class ChatController {
 	            message.getContent()
 	    );
 	    
-	    
 		messagingTemplate.convertAndSendToUser(
 				message.getReceiver(),
 				"/queue/messages",
 				message
-				);
-		 
+				);	 
+	}
+	@MessageMapping("/typing")
+	public void typing(TypingMessage typingMessage, Principal principal) {
+
+	    typingMessage.setSender(principal.getName());
+
+	    messagingTemplate.convertAndSendToUser(
+	            typingMessage.getReceiver(),
+	            "/queue/typing",
+	            typingMessage
+	    );
 	}
 }

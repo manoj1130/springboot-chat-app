@@ -31,6 +31,8 @@ public class User {
 	private List<Message> sentMessages;
 	
 	private boolean online;
+	
+	private String lastSeen;
 
 	public User() {
 
@@ -38,7 +40,7 @@ public class User {
 
 	public User(Long id, @NotBlank(message = "Username is required") String username,
 			@NotBlank(message = "Password is required") String password,
-			@NotBlank(message = "Role is required") String role, List<Message> sentMessages, boolean online) {
+			@NotBlank(message = "Role is required") String role, List<Message> sentMessages, boolean online,String lastSeen) {
 		super();
 		this.id = id;
 		this.username = username;
@@ -46,6 +48,7 @@ public class User {
 		this.role = role;
 		this.sentMessages = sentMessages;
 		this.online = online;
+		this.lastSeen = lastSeen;
 	}
 
 	public Long getId() {
@@ -94,6 +97,14 @@ public class User {
 
 	public void setOnline(boolean online) {
 		this.online = online;
+	}
+	
+	public String getLastSeen() {
+	    return lastSeen;
+	}
+
+	public void setLastSeen(String lastSeen) {
+	    this.lastSeen = lastSeen;
 	}
 
 	

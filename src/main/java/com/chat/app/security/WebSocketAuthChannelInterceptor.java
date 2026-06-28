@@ -67,6 +67,15 @@ public class WebSocketAuthChannelInterceptor implements ChannelInterceptor{
 		        userService.updateOnlineStatus(username, true);
 		    }
 		}
+		if (accessor != null && StompCommand.DISCONNECT.equals(accessor.getCommand())) {
+
+		    if (accessor.getUser() != null) {
+
+		        String username = accessor.getUser().getName();
+
+		        userService.updateOfflineStatus(username);
+		    }
+		}
         return message;
     }
 }
