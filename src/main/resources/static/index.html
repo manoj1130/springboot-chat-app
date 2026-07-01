@@ -12,20 +12,52 @@
 <h2>Spring Boot Chat</h2>
 
 
-<input id="receiver" placeholder="Receiver Username">
-<input id="message" placeholder="Message">
+<div style="display:flex; border:1px solid gray; height:450px;">
 
-<button onclick="sendMessage()">Send</button>
+    <!-- Users -->
+    <div id="users"
+         style="width:30%;
+                border-right:1px solid gray;
+                padding:10px;
+                overflow-y:auto;">
 
-<div id="typing" style="color:gray; font-style:italic;"></div>
+        <h3>Users</h3>
 
-<hr>
+    </div>
 
-<div id="chat"></div>
+    <!-- Chat -->
+    <div style="width:70%; padding:10px;">
+
+        <h3 id="chatWith">Select User</h3>
+
+        <div id="typing"
+             style="color:gray;font-style:italic;"></div>
+
+        <hr>
+
+        <div id="chat"
+             style="height:250px;
+                    overflow-y:auto;">
+        </div>
+
+        <hr>
+
+        <input id="message"
+               placeholder="Type message..."
+               style="width:80%;">
+
+        <button onclick="sendMessage()">
+            Send
+        </button>
+
+    </div>
+
+</div>
 
 <script>
 
 let stompClient = null;
+let currentChatUser = "";
 
 function connect() {
 
@@ -35,54 +67,64 @@ function connect() {
 
     let token = localStorage.getItem("token");
 
-    
-
     let headers = {
         Authorization: "Bearer " + token
     };
 
-    
+    stompClient.connect(headers, function () {
 
-    stompClient.connect(
-        headers,
-        function () {
+        // Receive Chat Messages
+        stompClient.subscribe('/user/queue/messages', function(message){
 
-            
+            let msg = JSON.parse(message.body);
 
-            stompClient.subscribe('/user/queue/messages', function(message){
+            document.getElementById("chat").innerHTML +=
+                "<p><b>"+msg.sender+"</b>: "+msg.content+"</p>";
 
-                let msg = JSON.parse(message.body);
+            // Notify sender that message is delivered
+            stompClient.send("/app/delivered", {}, JSON.stringify({
+                sender: msg.sender
+            }));
+        });
 
-                document.getElementById("chat").innerHTML +=
-                    "<p><b>"+msg.sender+"</b>: "+msg.content+"</p>";
+        // Typing Indicator
+        stompClient.subscribe('/user/queue/typing', function(message){
 
-            });
-            
-            stompClient.subscribe('/user/queue/typing', function(message){
+            let typing = JSON.parse(message.body);
 
-                let typing = JSON.parse(message.body);
+            let typingDiv = document.getElementById("typing");
 
-                let typingDiv = document.getElementById("typing");
+            if(typing.typing){
 
-                if(typing.typing){
+                typingDiv.innerHTML =
+                    "<i>" + typing.sender + " is typing...</i>";
 
-                    typingDiv.innerHTML =
-                        "<i>" + typing.sender + " is typing...</i>";
+            } else {
 
-                }else{
+                typingDiv.innerHTML = "";
 
-                    typingDiv.innerHTML = "";
+            }
 
-                }
+        });
 
-            });
+        // Receive Message Status Updates
+        stompClient.subscribe('/user/queue/status', function(message){
 
-        }
-    );
+            console.log("Message Status : " + message.body);
+
+        });
+
+    });
+
 }
+
 function sendTyping(isTyping){
 
-    let receiver = document.getElementById("receiver").value;
+	let receiver = currentChatUser;
+
+	if(receiver === ""){
+	    return;
+	}
 
     stompClient.send("/app/typing",{},JSON.stringify({
 
@@ -93,40 +135,143 @@ function sendTyping(isTyping){
     }));
 
 }
+
 function sendMessage() {
 
-    
+	let receiver = currentChatUser;
 
-    let receiver = document.getElementById("receiver").value;
+	if(receiver === ""){
+	    alert("Please select a user");
+	    return;
+	}
     let content = document.getElementById("message").value;
-
-    
 
     stompClient.send("/app/send", {}, JSON.stringify({
         receiver: receiver,
         content: content
     }));
 
-   
+}
+
+function markAsRead(){
+
+    if(currentChatUser === ""){
+        return;
+    }
+
+    stompClient.send("/app/read", {}, JSON.stringify({
+
+        sender: currentChatUser
+
+    }));
+
 }
 
 connect();
+loadUsers();
 
 let timer;
 
-document.getElementById("message").addEventListener("input",function(){
+document.getElementById("message").addEventListener("input", function () {
 
     sendTyping(true);
 
     clearTimeout(timer);
 
-    timer = setTimeout(function(){
+    timer = setTimeout(function () {
 
         sendTyping(false);
 
-    },1000);
+    }, 1000);
 
 });
+
+function loadUsers() {
+
+    let token = localStorage.getItem("token");
+
+    fetch("/user/all", {
+        headers: {
+            "Authorization": "Bearer " + token
+        }
+    })
+    .then(response => response.json())
+    .then(users => {
+
+        let usersDiv = document.getElementById("users");
+
+        usersDiv.innerHTML = "<h3>Users</h3>";
+
+        users.forEach(user => {
+
+            usersDiv.innerHTML += `
+                <div onclick="selectUser('${user.username}')"
+                     style="padding:10px;
+                            border-bottom:1px solid #ddd;
+                            cursor:pointer;">
+
+                    👤 ${user.username}
+
+                </div>
+            `;
+
+        });
+
+    });
+
+}
+
+function selectUser(username){
+
+    currentChatUser = username;
+
+    document.getElementById("chatWith").innerHTML =
+        "Chat with " + username;
+
+    loadConversation(username);
+
+    markAsRead();
+
+}
+
+function loadConversation(receiver){
+
+    let token = localStorage.getItem("token");
+
+    fetch("/messages/conversation?receiver=" + receiver, {
+
+        headers:{
+            "Authorization":"Bearer " + token
+        }
+
+    })
+    .then(response => response.json())
+    .then(messages => {
+
+        let chat = document.getElementById("chat");
+
+        chat.innerHTML = "";
+
+        messages.forEach(message => {
+
+            chat.innerHTML += `
+                <p>
+                    <b>${message.sender}</b> :
+                    ${message.content}
+                </p>
+            `;
+
+        });
+
+    });
+
+}
+// Trigger READ when receiver changes
+//document.getElementById("receiver").addEventListener("change", function(){
+
+//    markAsRead();
+
+//});
 
 </script>
 

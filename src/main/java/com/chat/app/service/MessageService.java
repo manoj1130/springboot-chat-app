@@ -1,6 +1,7 @@
 package com.chat.app.service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.chat.app.dto.ChatHistoryResponse;
 import com.chat.app.dto.MessageRequest;
+import com.chat.app.enums.MessageStatus;
 import com.chat.app.exception.UserNotFoundException;
 import com.chat.app.model.Message;
 import com.chat.app.model.User;
@@ -40,19 +42,24 @@ public class MessageService {
 	    message.setContent(request.getContent());
 	    message.setTimestamp(request.getTimestamp());
 
+	    // NEW
+	    message.setStatus(MessageStatus.SENT);
+
 	    return messageRepository.save(message);
 	}
 
     //Using by WebSocket
-	public Message saveMessage(User user, String content) {
+	public Message saveMessage(User sender, User receiver, String content) {
 
 	    Message message = new Message();
 
-	    message.setSender(user);
-	    message.setReceiver(null);
+	    message.setSender(sender);
+	    message.setReceiver(receiver);
+	
 	    message.setContent(content);
 	    message.setTimestamp(java.time.LocalDateTime.now().toString());
 
+	    message.setStatus(MessageStatus.SENT);
 	    return messageRepository.save(message);
 	}
 	
@@ -69,7 +76,9 @@ public class MessageService {
 		message.setReceiver(receiver);
 		message.setContent(content);
 		message.setTimestamp(java.time.LocalDateTime.now().toString());
-		
+
+		message.setStatus(MessageStatus.SENT);
+
 		return messageRepository.save(message);
 					
 	}
@@ -89,10 +98,49 @@ public class MessageService {
 	            .map(message -> new ChatHistoryResponse(
 	                    message.getSender().getUsername(),
 	                    message.getContent(),
-	                    message.getTimestamp()
+	                    message.getTimestamp(),
+	                    message.getStatus()
 	            ))
 	            .toList();
 	}
+	
+	public void markAsDelivered(String senderUsername, String receiverUsername) {
+
+	    List<Message> messages =
+	            messageRepository.findBySenderUsernameAndReceiverUsernameAndStatus(
+	                    senderUsername,
+	                    receiverUsername,
+	                    MessageStatus.SENT
+	            );
+
+	    for (Message message : messages) {
+
+	        message.setStatus(MessageStatus.DELIVERED);
+
+	        messageRepository.save(message);
+	    }
+	}
+	
+	public void markAsRead(String senderUsername, String receiverUsername) {
+
+	    List<Message> messages =
+	            messageRepository.findBySenderUsernameAndReceiverUsernameAndStatus(
+	                    senderUsername,
+	                    receiverUsername,
+	                    MessageStatus.DELIVERED
+	            );
+
+	    if (messages.isEmpty()) {
+	        return;
+	    }
+
+	    for (Message message : messages) {
+	        message.setStatus(MessageStatus.READ);
+	    }
+
+	    messageRepository.saveAll(messages);
+	}
+	
 	
     public List<Message> getAllMessages() {
         return messageRepository.findAll();
@@ -105,7 +153,8 @@ public class MessageService {
                 .map(message -> new ChatHistoryResponse(
                         message.getSender().getUsername(),
                         message.getContent(),
-                        message.getTimestamp()))
+                        message.getTimestamp(),
+                        message.getStatus()))
                 .collect(Collectors.toList());
     }
     

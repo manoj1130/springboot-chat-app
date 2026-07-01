@@ -1,6 +1,10 @@
 package com.chat.app.model;
 
+import com.chat.app.enums.MessageStatus;
+
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -24,17 +28,21 @@ public class Message {
 	    private String content;
 	    private String timestamp;
 	    
+	    @Enumerated(EnumType.STRING)
+	    private MessageStatus status;
+	    
 	    
 		public Message() {
 			super();
 		}
-		public Message(Long id, User sender, User receiver, String content, String timestamp) {
+		public Message(Long id, User sender, User receiver, String content, String timestamp, MessageStatus status) {
 			super();
 			this.id = id;
 			this.sender = sender;
 			this.receiver = receiver;
 			this.content = content;
 			this.timestamp = timestamp;
+			this.status = status;
 		}
 		public Long getId() {
 			return id;
@@ -65,6 +73,14 @@ public class Message {
 		}
 		public void setTimestamp(String timestamp) {
 			this.timestamp = timestamp;
+		}
+		
+		public MessageStatus getStatus() {
+		    return status;
+		}
+
+		public void setStatus(MessageStatus status) {
+		    this.status = status;
 		}
 		
 	    
